@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 
 import { api } from '../api/client';
+import { isDemo } from '../demo';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -36,6 +37,12 @@ export default function Register() {
 
   return (
     <main className="mx-auto flex max-w-sm flex-col px-4 py-16">
+      {isDemo && (
+        <div className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-300">
+          演示模式：无需注册，
+          <Link to="/console" className="underline">直接进入演示控制台</Link>
+        </div>
+      )}
       <h1 className="mb-6 text-center text-2xl font-bold text-white">
         用户名注册
       </h1>
