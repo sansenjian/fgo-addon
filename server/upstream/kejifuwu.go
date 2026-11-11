@@ -18,6 +18,9 @@ var (
 	GraphQLEndpoint = envStr("KEJIFUWU_GRAPHQL_ENDPOINT", "https://graphql.fatego.cn/graphql")
 	Username        = envStr("KEJIFUWU_USERNAME", "")
 	Password        = envStr("KEJIFUWU_PASSWORD", "")
+	// 静态 token 模式：若设置 KEJIFUWU_TOKEN（浏览器 F12 抓的 Bearer JWT，7 天有效），
+	// 跳过账号密码登录，直接使用；到期后换新 token 或改回账号密码模式。
+	StaticToken = envStr("KEJIFUWU_TOKEN", "")
 )
 
 func envStr(key, def string) string {
@@ -79,7 +82,16 @@ func (c *Client) ensureLogin() error {
 	if c.token != "" {
 		return nil
 	}
+	if StaticToken != "" {
+		c.token = StaticToken
+		return nil
+	}
 	return c.login()
+}
+
+// WarmUp 服务启动时主动登录上游、缓存 JWT；失败不致命（首个请求会重试）
+func WarmUp() error {
+	return Default.ensureLogin()
 }
 
 // Do 透传 GraphQL 请求体（{"query": "...", "variables": {...}}），自动注入上游 JWT
