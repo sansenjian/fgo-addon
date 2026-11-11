@@ -61,6 +61,21 @@ export KEJIFUWU_USERNAME='<上游账号>' KEJIFUWU_PASSWORD='<上游密码>'
 
 上游若改版加密导致服务端自动登录失效：用 `tools/browser-login/` 无头浏览器脚本登录拿 JWT，设 `KEJIFUWU_TOKEN` 环境变量即切换为静态 token 模式，服务端无需改代码。详见该目录 README。
 
+## 前端静态部署（GitHub Pages / 任意静态托管）
+
+前端构建产物是纯静态文件，与后端分离部署：
+
+```bash
+cd web
+echo 'VITE_API_BASE=https://api.你的域名.com/api' > .env.production
+bun install && bun run build:gh   # 产物在 web/dist（含 404.html 用于 SPA 回退）
+```
+
+- **GitHub Pages**：推 main 自动部署（`.github/workflows/pages.yml`），仓库 Settings → Pages 选 "GitHub Actions" 源；在 Settings → Secrets and variables → Actions → Variables 添加 `API_BASE`（你的后端地址）。注意：**私有仓库开 Pages 需要 GitHub Pro**。
+- **免费替代**：Cloudflare Pages / Vercel，构建命令 `bun run build:gh`，输出目录 `web/dist`，环境变量同样设 `VITE_API_BASE`。
+- **国内访问**：GitHub Pages 不稳定，建议阿里云 OSS / 腾讯云 COS + CDN 托管 `dist`。
+- 后端 CORS 已放开（`cors.AllowAll`），跨域直接可用；但前端是 HTTPS 时后端也必须 HTTPS，否则浏览器拦截混合内容。
+
 ## 仓库
 
 https://github.com/sansenjian/fgo-addon （私有）
