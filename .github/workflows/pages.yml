@@ -27,6 +27,7 @@ jobs:
           # 仓库 Settings → Secrets and variables → Actions → Variables 里添加 API_BASE
           VITE_API_BASE: ${{ vars.API_BASE }}
           GITHUB_PAGES: 'true'
+          VITE_DEMO_MODE: 'true'   # Pages 展示站=演示模式（mock 数据，免登录浏览）
         run: |
           bun install
           bun run build
