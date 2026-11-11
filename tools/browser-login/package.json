@@ -1,0 +1,12 @@
+{
+  "name": "fgo-browser-login",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plan B：无头浏览器登录 kejifuwu 获取 JWT（服务端密码登录失效时兜底）",
+  "scripts": {
+    "login": "node login.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.0.0"
+  }
+}
