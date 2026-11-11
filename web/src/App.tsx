@@ -8,13 +8,14 @@ import {
 } from '@tanstack/react-router';
 
 import Home from './pages/Home';
+import { isDemo } from './demo';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Console from './pages/Console';
 
 function NavBar() {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || (isDemo ? 'demo' : null);
 
   const logout = () => {
     localStorage.removeItem('token');
