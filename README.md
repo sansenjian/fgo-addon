@@ -1,71 +1,62 @@
 # fgo-addon
 
-FGO 全自动代肝服务平台（对标 kejifuwu.windycloud.cn 的功能形态），**数据库与 Web 技术与 new-api 完全对齐**。
+FGO 全自动代肝服务中转站（对标 kejifuwu.windycloud.cn），**数据库与 Web 技术与 new-api 对齐**。
+
+## 架构
+
+```
+用户 → 本站注册/登录 → 拿 JWT 或 sk- 令牌
+     → POST /api/fgo（GraphQL 透传）
+     → 服务端代持 kejifuwu 账号（SM4 加密密码登录 → JWT 注入，401 自动重登）
+     → 上游 https://graphql.fatego.cn/graphql
+```
+
+- 上游前端：Vue3 + Vuetify SPA；上游后端：GraphQL（JWT）。本站保持 new-api 技术栈不变。
+- 上游密码传输用魔改 SM4（密钥 `FateGoAutoAddon2025`），纯 Go 实现在 `server/upstream/sm4.go`，已对真实服务器验证（注册+登录通过）。
 
 ## 技术栈对照
 
 | 层 | new-api | 本项目 |
 |---|---|---|
 | 后端框架 | Go + Gin v1.9 | Go + Gin v1.9.1 |
-| ORM / 数据库 | GORM + SQLite/MySQL/PostgreSQL | GORM + SQLite/MySQL |
-| 鉴权 | JWT (golang-jwt) + bcrypt | 同左 |
+| ORM / 数据库 | GORM + SQLite/MySQL | GORM + SQLite/MySQL |
+| 鉴权 | JWT + bcrypt | 同左 |
 | 前端构建 | Rsbuild + Bun | Rsbuild + Bun |
 | 前端框架 | React 19 + TypeScript | React 19 + TypeScript |
 | CSS | Tailwind CSS 4 | Tailwind CSS 4 |
 | 路由 | TanStack Router | TanStack Router |
-| 请求/状态 | axios + zustand | axios + zustand |
 
 ## 目录结构
 
 ```
 fgo-addon/
-├── server/            # Go 后端（对齐 new-api 分层：config/model/middleware/controller/router）
-│   ├── main.go
-│   ├── config/        # 环境变量配置（.env 或系统环境变量）
-│   ├── model/         # GORM 模型（users 表，字段风格对齐 new-api）
-│   ├── middleware/    # JWT 鉴权中间件
-│   ├── controller/    # 注册 / 登录 / 用户信息
-│   └── router/        # Gin 路由，/api 前缀
-└── web/               # 前端（rsbuild + bun，/api 代理到 :3000）
-    └── src/
-        ├── pages/     # 首页(营销落地页) / 登录 / 注册 / 控制台
-        └── api/       # axios 实例（Bearer token，同 new-api 约定）
+├── server/
+│   ├── config/        # 环境变量配置
+│   ├── model/         # GORM 模型（users / tokens）
+│   ├── middleware/    # JWT 鉴权
+│   ├── controller/    # 用户 / 令牌 / GraphQL 透传
+│   ├── upstream/      # kejifuwu GraphQL 适配 + SM4（核心）
+│   └── router/
+├── web/               # React 前端（首页/登录/注册/控制台）
+└── docs/API.md        # 完整接口文档（含上游操作清单）
 ```
 
 ## 运行
 
-后端（默认 SQLite，开箱即用）：
-
 ```bash
-cd server
-go mod tidy
-go run .
+cd server && go mod tidy && go run .     # :3000，默认 SQLite
+cd web && bun install && bun run dev     # :5173，/api 代理到 :3000
 ```
 
-前端：
+生产：
 
 ```bash
-cd web
-bun install
-bun run dev   # http://localhost:5173，/api 已代理到 :3000
+export DB_TYPE=mysql DB_DSN='...' JWT_SECRET='...'
+export KEJIFUWU_USERNAME='<上游账号>' KEJIFUWU_PASSWORD='<上游密码>'
 ```
 
-生产用 MySQL：
+上游账号需充值积分后方可创建订单（见 docs/API.md）。
 
-```bash
-export DB_TYPE=mysql
-export DB_DSN='user:pass@tcp(127.0.0.1:3306)/fgo?charset=utf8mb4&parseTime=True&loc=Local'
-export JWT_SECRET='<随机长字符串>'
-```
+## 仓库
 
-## API
-
-| 方法 | 路径 | 说明 |
-|---|---|---|
-| POST | /api/user/register | 注册 `{username, nickname?, password}` |
-| POST | /api/user/login | 登录，返回 `{token, user}` |
-| GET | /api/user/self | 当前用户信息（需 Authorization: Bearer） |
-
-## 待补齐
-
-kejifuwu 注册后的后台业务（商品/订单/卡密/代肝任务）无法从外部探测，需注册后确认结构，再按同样分层补 model + controller + 页面。
+https://github.com/sansenjian/fgo-addon （私有）
