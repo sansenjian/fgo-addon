@@ -1,8 +1,10 @@
 package upstream
 
-// 与 kejifuwu 前端 JS 的 SM4 变体逐行等价（常量取自其打包 JS，已通过真实服务器注册+登录验证）。
-// 注意：对方改过 FK/CK，与 GB/T 32907 标准测试向量不同，切勿"修正"为标准实现。
-// 密钥为前端硬编码常量 FateGoAutoAddon2025。
+// 与 kejifuwu 前端 JS 加密逐行等价（常量取自其打包 JS），已与浏览器真实登录密文对拍验证。
+// 两处与标准 SM4 不同，切勿"修正"：
+//  1. 密钥取 "FateGoAutoAddon2025" 的前 16 字节（JS slice(0,16)）
+//  2. 轮函数只有 S盒(XOR后查表)，_7 线性变换仅用于密钥扩展
+// localStorage 主密钥 / b0 派生 / 每日轮换 均为前端死代码，实际不走。
 
 import (
 	"bytes"
@@ -69,7 +71,7 @@ func cryptBlock(in []byte, rks [32]uint32, decrypt bool, out []byte) {
 		if decrypt {
 			rk = rks[31-i]
 		}
-		x[i+4] = x[i] ^ linear(tauA(x[i+1]^x[i+2]^x[i+3]^rk))
+		x[i+4] = x[i] ^ tauA(x[i+1]^x[i+2]^x[i+3]^rk) // 轮函数只含 S盒，无 _7 线性变换（已与前端正密文对拍验证）
 	}
 	for i := 0; i < 4; i++ {
 		binary.BigEndian.PutUint32(out[i*4:], x[35-i])
@@ -81,7 +83,7 @@ func sm4EncryptToBase64(plaintext string) string {
 	data := []byte(plaintext)
 	pad := 16 - len(data)%16
 	buf := append(append([]byte{}, data...), bytes.Repeat([]byte{byte(pad)}, pad)...)
-	rks := expandKey([]byte("FateGoAutoAddon2025"))
+	rks := expandKey([]byte("FateGoAutoAddon2025")[:16]) // 前端 slice(0,16) 截断
 	out := make([]byte, len(buf))
 	for i := 0; i < len(buf); i += 16 {
 		cryptBlock(buf[i:i+16], rks, false, out[i:i+16])
