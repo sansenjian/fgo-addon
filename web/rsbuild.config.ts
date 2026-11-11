@@ -18,4 +18,8 @@ export default defineConfig({
   html: {
     title: 'Game Auto Addon',
   },
+  output: {
+    // GitHub Pages 项目页必须带仓库名前缀；普通部署用默认 '/'
+    assetPrefix: process.env.GITHUB_PAGES === 'true' ? '/fgo-addon/' : '/',
+  },
 });
