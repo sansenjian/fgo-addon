@@ -23,7 +23,8 @@ func Setup() *gin.Engine {
 		api.POST("/token", middleware.Auth(), controller.CreateToken)
 		api.DELETE("/token/:id", middleware.Auth(), controller.DeleteToken)
 
-		// 通用转发：/api/fgo/* → 上游 kejifuwu，注入我们持有的账号会话
+		// 通用转发：/api/fgo[/...] → 上游 GraphQL，注入我们持有的账号会话
+		api.POST("/fgo", middleware.Auth(), controller.ProxyToKejifuwu)
 		api.Any("/fgo/*path", middleware.Auth(), controller.ProxyToKejifuwu)
 	}
 	return r
