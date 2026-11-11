@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [pluginReact()],
   source: {
     entry: { index: './src/main.tsx' },
+    // rsbuild 不会自动把 shell 环境变量塞进 import.meta.env，必须显式 define
+    define: {
+      'import.meta.env.VITE_API_BASE': JSON.stringify(process.env.VITE_API_BASE ?? ''),
+      'import.meta.env.VITE_DEMO_MODE': JSON.stringify(process.env.VITE_DEMO_MODE ?? ''),
+    },
   },
   server: {
     port: 5173,
