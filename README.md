@@ -57,6 +57,10 @@ export KEJIFUWU_USERNAME='<上游账号>' KEJIFUWU_PASSWORD='<上游密码>'
 
 上游账号需充值积分后方可创建订单（见 docs/API.md）。
 
+## Plan B：浏览器兜底登录
+
+上游若改版加密导致服务端自动登录失效：用 `tools/browser-login/` 无头浏览器脚本登录拿 JWT，设 `KEJIFUWU_TOKEN` 环境变量即切换为静态 token 模式，服务端无需改代码。详见该目录 README。
+
 ## 仓库
 
 https://github.com/sansenjian/fgo-addon （私有）
