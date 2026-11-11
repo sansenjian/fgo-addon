@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "rsbuild dev",
     "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "build:gh": "rsbuild build && cp dist/index.html dist/404.html"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
