@@ -1,0 +1,45 @@
+name: deploy-web
+
+# 推送到 main 自动构建前端并发布到 GitHub Pages（需仓库 Settings → Pages 选 GitHub Actions 源）
+# 私有仓库开 Pages 需 GitHub Pro；免费替代：Cloudflare Pages / Vercel 指向同一构建产物
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/pages.yml'
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: 构建前端
+        working-directory: web
+        env:
+          # 仓库 Settings → Secrets and variables → Actions → Variables 里添加 API_BASE
+          VITE_API_BASE: ${{ vars.API_BASE }}
+        run: |
+          bun install
+          bun run build
+          cp dist/index.html dist/404.html   # SPA 路由回退（GitHub Pages 无 rewrite 规则）
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
