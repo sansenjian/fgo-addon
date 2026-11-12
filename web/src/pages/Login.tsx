@@ -49,7 +49,7 @@ export default function Login() {
 
       <form
         onSubmit={submit}
-        className="space-y-4 rounded-xl border border-border bg-card p-6"
+        className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm"
       >
         <div>
           <label className="mb-1 block text-sm text-muted">账号</label>
