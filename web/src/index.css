@@ -1,1 +1,49 @@
 @import 'tailwindcss';
+
+/* 类名策略的暗色模式（newapi 同款）：html.dark 切换 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 语义色令牌：亮/暗两套，组件只写语义类名 */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-onprimary: var(--onprimary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+}
+
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --foreground: #111827;
+  --muted: #6b7280;
+  --primary: #4f46e5;
+  --onprimary: #ffffff;
+  --success: #10b981;
+  --warning: #d97706;
+}
+
+.dark {
+  --background: #0b0f19;
+  --surface: #111827;
+  --card: #151c2c;
+  --border: #232b3d;
+  --foreground: #e5e7eb;
+  --muted: #8b93a7;
+  --primary: #6366f1;
+  --onprimary: #ffffff;
+  --success: #34d399;
+  --warning: #fbbf24;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
