@@ -1,0 +1,41 @@
+# 单 VPS 全栈部署：web(nginx 托管前端+反代) + server(Go 后端) + db(MySQL 可选)
+# 用法：docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  server:
+    build: ../server
+    restart: unless-stopped
+    environment:
+      DB_TYPE: ${DB_TYPE:-sqlite}
+      DB_DSN: ${DB_DSN:-/data/fgo.db}
+      JWT_SECRET: ${JWT_SECRET:?请设置 JWT_SECRET}
+      PORT: 3000
+      KEJIFUWU_USERNAME: ${KEJIFUWU_USERNAME:?请设置上游账号}
+      KEJIFUWU_PASSWORD: ${KEJIFUWU_PASSWORD:?请设置上游密码}
+      # KEJIFUWU_TOKEN: ""   # Plan B：密码登录失效时启用
+    volumes:
+      - fgo-data:/data
+    depends_on:
+      - db
+
+  web:
+    build: ../web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    profiles: ["mysql"]   # 需要 MySQL 时：docker compose --profile mysql up -d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: fgo
+    volumes:
+      - fgo-mysql:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  fgo-data:
+  fgo-mysql:
