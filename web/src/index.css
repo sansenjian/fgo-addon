@@ -3,7 +3,7 @@
 /* 类名策略的暗色模式（newapi 同款）：html.dark 切换 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 语义色令牌：亮/暗两套，组件只写语义类名 */
+/* 语义色令牌：shadcn/newapi 风格，亮/暗两套，组件只写语义类名 */
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -13,6 +13,8 @@
   --color-muted: var(--muted);
   --color-primary: var(--primary);
   --color-onprimary: var(--onprimary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
 }
@@ -26,6 +28,8 @@
   --muted: #6b7280;
   --primary: #4f46e5;
   --onprimary: #ffffff;
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
   --success: #10b981;
   --warning: #d97706;
 }
@@ -39,6 +43,8 @@
   --muted: #8b93a7;
   --primary: #6366f1;
   --onprimary: #ffffff;
+  --accent: #1f2937;
+  --accent-foreground: #e5e7eb;
   --success: #34d399;
   --warning: #fbbf24;
 }
@@ -46,4 +52,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'PingFang SC',
+    'Microsoft YaHei', sans-serif;
 }
